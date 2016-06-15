@@ -31,7 +31,8 @@ function initializeGestureState(gestureState) {
   gestureState._accountsForMovesUpTo = 0;
 
 
-
+  gestureState.previousMoveX = 0;
+  gestureState.previousMoveY = 0;
   gestureState.pinch = undefined;
   gestureState.previousPinch = undefined;
   gestureState.singleTapUp = false;
@@ -41,9 +42,6 @@ function initializeGestureState(gestureState) {
 }
 
 function updateGestureStateOnMove(gestureState, touchHistory, e) {
-  console.log('updateGestureStateOnMove...mostRecentTimeStamp=' + touchHistory.mostRecentTimeStamp +
-    ', timestamp=' + e.nativeEvent.timestamp + ', timeStamp=' + e.nativeEvent.timeStamp);
-
   const movedAfter = gestureState._accountsForMovesUpTo;
   const prevX = previousCentroidXOfTouchesChangedAfter(touchHistory, movedAfter);
   const x = currentCentroidXOfTouchesChangedAfter(touchHistory, movedAfter);
@@ -53,8 +51,8 @@ function updateGestureStateOnMove(gestureState, touchHistory, e) {
   const dy = y - prevY;
 
   gestureState.numberActiveTouches = touchHistory.numberActiveTouches;
-  gestureState.moveX = currentCentroidXOfTouchesChangedAfter(touchHistory, movedAfter);
-  gestureState.moveY = currentCentroidYOfTouchesChangedAfter(touchHistory, movedAfter);
+  gestureState.moveX = x;
+  gestureState.moveY = y;
 
   // TODO: This must be filtered intelligently.
   //const dt = touchHistory.mostRecentTimeStamp - movedAfter;
@@ -66,7 +64,8 @@ function updateGestureStateOnMove(gestureState, touchHistory, e) {
   gestureState._accountsForMovesUpTo = touchHistory.mostRecentTimeStamp;
 
 
-
+  gestureState.previousMoveX = prevX;
+  gestureState.previousMoveY = prevY;
   gestureState.pinch = pinchDistance(touchHistory, movedAfter, true);
   gestureState.previousPinch = pinchDistance(touchHistory, movedAfter, false);
 }
