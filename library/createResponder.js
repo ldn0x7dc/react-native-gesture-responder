@@ -16,6 +16,8 @@ const currentCentroidX = TouchHistoryMath.currentCentroidX;
 const currentCentroidY = TouchHistoryMath.currentCentroidY;
 
 const TAP_UP_TIME_THRESHOLD = 400;
+const MIN_SCROLL_DISTANCE = 5;
+const DEV = false;
 
 function initializeGestureState(gestureState) {
   gestureState.moveX = 0;
@@ -102,16 +104,19 @@ export default function create(config) {
 
   const handlers = {
     onStartShouldSetResponder: function (e) {
+      DEV && console.log('onStartShouldSetResponder...');
       return config.onStartShouldSetResponder ?
         config.onStartShouldSetResponder(e, gestureState) :
         false;
     },
     onMoveShouldSetResponder: function (e) {
+      DEV && console.log('onMoveShouldSetResponder...');
       return config.onMoveShouldSetResponder ?
         config.onMoveShouldSetResponder(e, gestureState) :
         false;
     },
     onStartShouldSetResponderCapture: function (e) {
+      DEV && console.log('onStartShouldSetResponderCapture...');
       // TODO: Actually, we should reinitialize the state any time
       // touches.length increases from 0 active to > 0 active.
       if (e.nativeEvent.touches.length === 1) {
@@ -124,6 +129,7 @@ export default function create(config) {
     },
 
     onMoveShouldSetResponderCapture: function (e) {
+      DEV && console.log('onMoveShouldSetResponderCapture...');
       const touchHistory = e.touchHistory;
       // Responder system incorrectly dispatches should* to current responder
       // Filter out any touch moves past the first one - we would have
@@ -138,6 +144,7 @@ export default function create(config) {
     },
 
     onResponderGrant: function (e) {
+      DEV && console.log('onResponderGrant...');
       if (!interactionState.handle) {
         interactionState.handle = InteractionManager.createInteractionHandle();
       }
@@ -156,12 +163,13 @@ export default function create(config) {
     },
 
     onResponderReject: function (e) {
+      DEV && console.log('onResponderReject...');
       clearInteractionHandle(interactionState);
       config.onResponderReject && config.onResponderReject(e, gestureState);
     },
 
     onResponderRelease: function (e) {
-      console.log('onResponderRelease...numberActiveTouches=' + e.touchHistory.numberActiveTouches);
+      DEV && console.log('onResponderRelease...numberActiveTouches=' + e.touchHistory.numberActiveTouches);
 
       if(gestureState.singleTapUp) {
         if(gestureState._lastSingleTapUp) {
@@ -180,6 +188,7 @@ export default function create(config) {
     },
 
     onResponderStart: function (e) {
+      DEV && console.log('onResponderStart...');
       const touchHistory = e.touchHistory;
       gestureState.numberActiveTouches = touchHistory.numberActiveTouches;
       if (config.onResponderStart) {
@@ -188,6 +197,7 @@ export default function create(config) {
     },
 
     onResponderMove: function (e) {
+      DEV && console.log('onResponderMove...');
       const touchHistory = e.touchHistory;
       // Guard against the dispatch of two touch moves when there are two
       // simultaneously changed touches.
@@ -197,13 +207,16 @@ export default function create(config) {
       // Filter out any touch moves past the first one - we would have
       // already processed multi-touch geometry during the first event.
       updateGestureStateOnMove(gestureState, touchHistory, e);
-      if (config.onResponderMove) {
-        config.onResponderMove(e, gestureState);
+
+      if(Math.abs(gestureState.dx) >= MIN_SCROLL_DISTANCE || Math.abs(gestureState.dy) >= MIN_SCROLL_DISTANCE) {
+        if (config.onResponderMove) {
+          config.onResponderMove(e, gestureState);
+        }
       }
     },
 
     onResponderEnd: function (e) {
-      console.log('onResponderEnd...numberActiveTouches=' + e.touchHistory.numberActiveTouches);
+      DEV && console.log('onResponderEnd...numberActiveTouches=' + e.touchHistory.numberActiveTouches);
       const touchHistory = e.touchHistory;
       gestureState.numberActiveTouches = touchHistory.numberActiveTouches;
 
@@ -220,12 +233,14 @@ export default function create(config) {
     },
 
     onResponderTerminate: function (e) {
+      DEV && console.log('onResponderTerminate...');
       clearInteractionHandle(interactionState);
       config.onResponderTerminate && config.onResponderTerminate(e, gestureState);
       initializeGestureState(gestureState);
     },
 
     onResponderTerminationRequest: function (e) {
+      DEV && console.log('onResponderTerminationRequest...');
       return config.onResponderTerminationRequest ?
         config.onResponderTerminationRequest(e. gestureState) :
         true;
