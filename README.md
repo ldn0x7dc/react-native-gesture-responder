@@ -15,6 +15,8 @@ A more convenient and powerful gesture responder than the official PanResponder.
 Have a glance of how to use it:
 
 ```
+import {createResponder} from 'react-native-gesture-responder';
+...
 componentWillMount() {
   this.gestureResponder = createResponder({
     onStartShouldSetResponder: (evt, gestureState) => true,
@@ -60,4 +62,17 @@ The **gesture** object has the following(a super set of PanResponder):
 * `doubleTapUp`: a bool value indicating if a double tap up occured
 
 
+
+
+## Debug
+
+If the responder is not working as you expected, you can enable lifecycle logs, which prints all the onResponderXXX events. 
+
+But do **NOT** use this in production for performance consideration.
+
+```
+import {createResponder} from 'react-native-gesture-responder';
+...
+createResponder.enableDebugLog();
+```
 
