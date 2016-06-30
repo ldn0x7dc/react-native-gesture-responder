@@ -5,7 +5,7 @@
 'use strict';
 
 import {InteractionManager} from 'react-native';
-import TouchHistoryMath from './TouchHistoryMath';
+import TouchHistoryMath from './TouchHistoryMath'; //copied from react/lib/TouchHistoryMath.js
 import {pinchDistance} from './TouchDistanceMath';
 
 const currentCentroidXOfTouchesChangedAfter = TouchHistoryMath.currentCentroidXOfTouchesChangedAfter;
@@ -16,7 +16,7 @@ const currentCentroidX = TouchHistoryMath.currentCentroidX;
 const currentCentroidY = TouchHistoryMath.currentCentroidY;
 
 const TAP_UP_TIME_THRESHOLD = 400;
-const MIN_SCROLL_DISTANCE = 5;
+const MOVE_THRESHOLD = 5;
 const DEV = false;
 
 function initializeGestureState(gestureState) {
@@ -92,6 +92,12 @@ function convertToMillisecIfNeeded(interval) {
   return interval;
 }
 
+/**
+ * The config object contains  same callbacks as the default gesture responder(https://facebook.github.io/react-native/docs/gesture-responder-system.html).
+ * And every callback are called with an additional argument 'gestureState', like PanResponder.
+ * @param config
+ * @returns {{}}
+ */
 export default function create(config) {
   const interactionState = {
     handle: null
@@ -111,7 +117,8 @@ export default function create(config) {
     },
     onMoveShouldSetResponder: function (e) {
       DEV && console.log('onMoveShouldSetResponder...');
-      return config.onMoveShouldSetResponder ?
+
+      return config.onMoveShouldSetResponder && effectiveMove(config, gestureState)?
         config.onMoveShouldSetResponder(e, gestureState) :
         false;
     },
@@ -138,7 +145,7 @@ export default function create(config) {
         return false;
       }
       updateGestureStateOnMove(gestureState, touchHistory, e);
-      return config.onMoveShouldSetResponderCapture ?
+      return config.onMoveShouldSetResponderCapture && effectiveMove(config, gestureState)?
         config.onMoveShouldSetResponderCapture(e, gestureState) :
         false;
     },
@@ -208,10 +215,8 @@ export default function create(config) {
       // already processed multi-touch geometry during the first event.
       updateGestureStateOnMove(gestureState, touchHistory, e);
 
-      if(Math.abs(gestureState.dx) >= MIN_SCROLL_DISTANCE || Math.abs(gestureState.dy) >= MIN_SCROLL_DISTANCE) {
-        if (config.onResponderMove) {
-          config.onResponderMove(e, gestureState);
-        }
+      if (config.onResponderMove && effectiveMove(config, gestureState)) {
+        config.onResponderMove(e, gestureState);
       }
     },
 
@@ -247,4 +252,22 @@ export default function create(config) {
     }
   };
   return {...handlers};
+}
+
+/**
+ * On Android devices, the default gesture responder is too sensitive that a single tap(no move intended) may trigger a move event.
+ * We can use a moveThreshold config to avoid those unwanted move events.
+ * @param config
+ * @param gestureState
+ * @returns {boolean}
+ */
+function effectiveMove(config, gestureState) {
+  let moveThreshold = MOVE_THRESHOLD;
+  if(typeof config.moveThreshold === 'number') {
+    moveThreshold = config.minMoveDistance;
+  }
+  if(Math.abs(gestureState.dx) >= moveThreshold || Math.abs(gestureState.dy) >= moveThreshold) {
+    return true;
+  }
+  return false;
 }
