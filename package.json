@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yoaicom/react-native-gesture-responder.git"
+    "url": "git+https://github.com/ldn0x7dc/react-native-gesture-responder.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yoaicom/react-native-gesture-responder/issues"
+    "url": "https://github.com/ldn0x7dc/react-native-gesture-responder/issues"
   },
-  "homepage": "https://github.com/yoaicom/react-native-gesture-responder#readme"
+  "homepage": "https://github.com/ldn0x7dc/react-native-gesture-responder#readme"
 }
