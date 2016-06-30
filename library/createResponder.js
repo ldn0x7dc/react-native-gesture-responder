@@ -16,8 +16,9 @@ const currentCentroidX = TouchHistoryMath.currentCentroidX;
 const currentCentroidY = TouchHistoryMath.currentCentroidY;
 
 const TAP_UP_TIME_THRESHOLD = 400;
-const MOVE_THRESHOLD = 5;
-const DEV = false;
+const MOVE_THRESHOLD = 2;
+
+let DEV = false;
 
 function initializeGestureState(gestureState) {
   gestureState.moveX = 0;
@@ -176,8 +177,6 @@ export default function create(config) {
     },
 
     onResponderRelease: function (e) {
-      DEV && console.log('onResponderRelease...numberActiveTouches=' + e.touchHistory.numberActiveTouches);
-
       if(gestureState.singleTapUp) {
         if(gestureState._lastSingleTapUp) {
           if(convertToMillisecIfNeeded(e.touchHistory.mostRecentTimeStamp - gestureState._lastReleaseTimestamp) < TAP_UP_TIME_THRESHOLD) {
@@ -188,7 +187,7 @@ export default function create(config) {
       }
       gestureState._lastReleaseTimestamp = e.touchHistory.mostRecentTimeStamp;
 
-
+      DEV && console.log('onResponderRelease...' + JSON.stringify(gestureState));
       clearInteractionHandle(interactionState);
       config.onResponderRelease && config.onResponderRelease(e, gestureState);
       initializeGestureState(gestureState);
@@ -204,7 +203,6 @@ export default function create(config) {
     },
 
     onResponderMove: function (e) {
-      DEV && console.log('onResponderMove...');
       const touchHistory = e.touchHistory;
       // Guard against the dispatch of two touch moves when there are two
       // simultaneously changed touches.
@@ -215,13 +213,13 @@ export default function create(config) {
       // already processed multi-touch geometry during the first event.
       updateGestureStateOnMove(gestureState, touchHistory, e);
 
+      DEV && console.log('onResponderMove...' + JSON.stringify(gestureState));
       if (config.onResponderMove && effectiveMove(config, gestureState)) {
         config.onResponderMove(e, gestureState);
       }
     },
 
     onResponderEnd: function (e) {
-      DEV && console.log('onResponderEnd...numberActiveTouches=' + e.touchHistory.numberActiveTouches);
       const touchHistory = e.touchHistory;
       gestureState.numberActiveTouches = touchHistory.numberActiveTouches;
 
@@ -233,6 +231,7 @@ export default function create(config) {
         gestureState.singleTapUp = true;
       }
 
+      DEV && console.log('onResponderEnd...' + JSON.stringify(gestureState));
       clearInteractionHandle(interactionState);
       config.onResponderEnd && config.onResponderEnd(e, gestureState);
     },
@@ -270,4 +269,8 @@ function effectiveMove(config, gestureState) {
     return true;
   }
   return false;
+}
+
+create.enableDebugLog= () => {
+  DEV = true;
 }

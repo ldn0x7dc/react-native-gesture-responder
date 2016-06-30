@@ -44,7 +44,7 @@ render() {
 The API is quite same of the [official one](https://facebook.github.io/react-native/docs/gesture-responder-system.html). Differences are:
 
 1. Every lifecycle callback is called with an additional argument **gestureState**, which is also quite same as the **PanResponder** but contains more info.
-2. The config object contains another value named **moveThreshold** (defaults to 5), which is used to avoid too sensitive move events when simply tap the screen(mainly on Android).
+2. The config object can provide another value named **moveThreshold** (defaults to 2 if not provided), which is used to avoid too sensitive move events when simply tap the screen(mainly on Android).
 
 The **gesture** object has the following(a super set of PanResponder):
 
