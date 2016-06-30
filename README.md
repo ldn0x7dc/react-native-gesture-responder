@@ -76,3 +76,12 @@ import {createResponder} from 'react-native-gesture-responder';
 createResponder.enableDebugLog();
 ```
 
+
+
+## Application
+
+Refer to *Demo* folder for a simple demonstration, as below shows:
+
+![](Demo/demo.gif)
+
+For more complicated use cases, pls refer to [react-native-view-transformer](https://github.com/ldn0x7dc/react-native-view-transformer) and [react-native-gallery](https://github.com/ldn0x7dc/react-native-gallery).
