@@ -7,6 +7,7 @@
 import {InteractionManager} from 'react-native';
 import TouchHistoryMath from './TouchHistoryMath'; //copied from react/lib/TouchHistoryMath.js
 import {pinchDistance} from './TouchDistanceMath';
+import TimerMixin from 'react-timer-mixin';
 
 const currentCentroidXOfTouchesChangedAfter = TouchHistoryMath.currentCentroidXOfTouchesChangedAfter;
 const currentCentroidYOfTouchesChangedAfter = TouchHistoryMath.currentCentroidYOfTouchesChangedAfter;
@@ -87,10 +88,17 @@ function clearInteractionHandle(interactionState) {
  * @returns {*}
  */
 function convertToMillisecIfNeeded(interval) {
-  if(interval > 1000000) {
+  if (interval > 1000000) {
     return interval / 1000000;
   }
   return interval;
+}
+
+function cancelSingleTapConfirm(gestureState) {
+  if(typeof gestureState._singleTapConfirmId !== 'undefined') {
+    TimerMixin.clearTimeout(gestureState._singleTapConfirmId);
+    gestureState._singleTapConfirmId = undefined;
+  }
 }
 
 /**
@@ -112,6 +120,7 @@ export default function create(config) {
   const handlers = {
     onStartShouldSetResponder: function (e) {
       DEV && console.log('onStartShouldSetResponder...');
+      cancelSingleTapConfirm(gestureState);
       return config.onStartShouldSetResponder ?
         config.onStartShouldSetResponder(e, gestureState) :
         false;
@@ -119,12 +128,13 @@ export default function create(config) {
     onMoveShouldSetResponder: function (e) {
       DEV && console.log('onMoveShouldSetResponder...');
 
-      return config.onMoveShouldSetResponder && effectiveMove(config, gestureState)?
+      return config.onMoveShouldSetResponder && effectiveMove(config, gestureState) ?
         config.onMoveShouldSetResponder(e, gestureState) :
         false;
     },
     onStartShouldSetResponderCapture: function (e) {
       DEV && console.log('onStartShouldSetResponderCapture...');
+      cancelSingleTapConfirm(gestureState);
       // TODO: Actually, we should reinitialize the state any time
       // touches.length increases from 0 active to > 0 active.
       if (e.nativeEvent.touches.length === 1) {
@@ -146,13 +156,14 @@ export default function create(config) {
         return false;
       }
       updateGestureStateOnMove(gestureState, touchHistory, e);
-      return config.onMoveShouldSetResponderCapture && effectiveMove(config, gestureState)?
+      return config.onMoveShouldSetResponderCapture && effectiveMove(config, gestureState) ?
         config.onMoveShouldSetResponderCapture(e, gestureState) :
         false;
     },
 
     onResponderGrant: function (e) {
       DEV && console.log('onResponderGrant...');
+      cancelSingleTapConfirm(gestureState);
       if (!interactionState.handle) {
         interactionState.handle = InteractionManager.createInteractionHandle();
       }
@@ -177,13 +188,24 @@ export default function create(config) {
     },
 
     onResponderRelease: function (e) {
-      if(gestureState.singleTapUp) {
-        if(gestureState._lastSingleTapUp) {
-          if(convertToMillisecIfNeeded(e.touchHistory.mostRecentTimeStamp - gestureState._lastReleaseTimestamp) < TAP_UP_TIME_THRESHOLD) {
+      if (gestureState.singleTapUp) {
+        if (gestureState._lastSingleTapUp) {
+          if (convertToMillisecIfNeeded(e.touchHistory.mostRecentTimeStamp - gestureState._lastReleaseTimestamp) < TAP_UP_TIME_THRESHOLD) {
             gestureState.doubleTapUp = true;
           }
         }
         gestureState._lastSingleTapUp = true;
+
+        //schedule to confirm single tap
+        if (!gestureState.doubleTapUp) {
+          const snapshot = Object.assign({}, gestureState);
+          const timeoutId = TimerMixin.setTimeout(() => {
+            if (gestureState._singleTapConfirmId === timeoutId) {
+              config.onResponderSingleTapConfirmed && config.onResponderSingleTapConfirmed(e, snapshot);
+            }
+          }, TAP_UP_TIME_THRESHOLD);
+          gestureState._singleTapConfirmId = timeoutId;
+        }
       }
       gestureState._lastReleaseTimestamp = e.touchHistory.mostRecentTimeStamp;
 
@@ -223,11 +245,11 @@ export default function create(config) {
       const touchHistory = e.touchHistory;
       gestureState.numberActiveTouches = touchHistory.numberActiveTouches;
 
-      if(touchHistory.numberActiveTouches > 0 ||
+      if (touchHistory.numberActiveTouches > 0 ||
         convertToMillisecIfNeeded(touchHistory.mostRecentTimeStamp - gestureState._grantTimestamp) > TAP_UP_TIME_THRESHOLD) {
         gestureState._singleTabFailed = true;
       }
-      if(!gestureState._singleTabFailed) {
+      if (!gestureState._singleTabFailed) {
         gestureState.singleTapUp = true;
       }
 
@@ -246,7 +268,7 @@ export default function create(config) {
     onResponderTerminationRequest: function (e) {
       DEV && console.log('onResponderTerminationRequest...');
       return config.onResponderTerminationRequest ?
-        config.onResponderTerminationRequest(e. gestureState) :
+        config.onResponderTerminationRequest(e.gestureState) :
         true;
     }
   };
@@ -262,15 +284,15 @@ export default function create(config) {
  */
 function effectiveMove(config, gestureState) {
   let moveThreshold = MOVE_THRESHOLD;
-  if(typeof config.moveThreshold === 'number') {
+  if (typeof config.moveThreshold === 'number') {
     moveThreshold = config.minMoveDistance;
   }
-  if(Math.abs(gestureState.dx) >= moveThreshold || Math.abs(gestureState.dy) >= moveThreshold) {
+  if (Math.abs(gestureState.dx) >= moveThreshold || Math.abs(gestureState.dy) >= moveThreshold) {
     return true;
   }
   return false;
 }
 
-create.enableDebugLog= () => {
+create.enableDebugLog = () => {
   DEV = true;
 }

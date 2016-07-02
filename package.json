@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ldn0x7dc/react-native-gesture-responder/issues"
   },
-  "homepage": "https://github.com/ldn0x7dc/react-native-gesture-responder#readme"
+  "homepage": "https://github.com/ldn0x7dc/react-native-gesture-responder#readme",
+  "dependencies": {
+    "react-timer-mixin": "^0.13.3"
+  }
 }

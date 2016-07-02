@@ -28,7 +28,9 @@ componentWillMount() {
     onResponderTerminationRequest: (evt, gestureState) => true,
     onResponderRelease: (evt, gestureState) => {},
     onResponderTerminate: (evt, gestureState) => {},
-    //moveThreshold: 5
+    
+    moveThreshold: 5
+    onResponderSingleTapConfirmed: (evt, gestureState) => {}
   });
 }
 
@@ -47,6 +49,7 @@ The API is quite same of the [official one](https://facebook.github.io/react-nat
 
 1. Every lifecycle callback is called with an additional argument **gestureState**, which is also quite same as the **PanResponder** but contains more info.
 2. The config object can provide another value named **moveThreshold** (defaults to 2 if not provided), which is used to avoid too sensitive move events when simply tap the screen(mainly on Android).
+3. **onResponderSingleTapConfirmed** : as the name says.
 
 The **gesture** object has the following(a super set of PanResponder):
 
