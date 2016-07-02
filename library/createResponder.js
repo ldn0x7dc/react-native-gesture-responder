@@ -17,6 +17,7 @@ const currentCentroidX = TouchHistoryMath.currentCentroidX;
 const currentCentroidY = TouchHistoryMath.currentCentroidY;
 
 const TAP_UP_TIME_THRESHOLD = 400;
+const TAP_MOVE_THRESHOLD = 10;
 const MOVE_THRESHOLD = 2;
 
 let DEV = false;
@@ -245,8 +246,11 @@ export default function create(config) {
       const touchHistory = e.touchHistory;
       gestureState.numberActiveTouches = touchHistory.numberActiveTouches;
 
-      if (touchHistory.numberActiveTouches > 0 ||
-        convertToMillisecIfNeeded(touchHistory.mostRecentTimeStamp - gestureState._grantTimestamp) > TAP_UP_TIME_THRESHOLD) {
+      if (touchHistory.numberActiveTouches > 0
+        || convertToMillisecIfNeeded(touchHistory.mostRecentTimeStamp - gestureState._grantTimestamp) > TAP_UP_TIME_THRESHOLD
+        || Math.abs(gestureState.dx) >= TAP_MOVE_THRESHOLD
+        || Math.abs(gestureState.dy) >= TAP_MOVE_THRESHOLD
+      ) {
         gestureState._singleTabFailed = true;
       }
       if (!gestureState._singleTabFailed) {
