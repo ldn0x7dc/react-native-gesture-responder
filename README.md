@@ -31,9 +31,9 @@ componentWillMount() {
     onResponderRelease: (evt, gestureState) => {},
     onResponderTerminate: (evt, gestureState) => {},
     
-    onResponderSingleTapConfirmed: (evt, gestureState) => {}
+    onResponderSingleTapConfirmed: (evt, gestureState) => {},
     
-    moveThreshold: 2
+    moveThreshold: 2,
     debug: false
   });
 }
