@@ -2,17 +2,19 @@
 
 A more convenient and powerful gesture responder than the official PanResponder.
 
+Using this library, gestures are easy to detect:
 
+* scroll distance
+* pinch distance
+* single tap
+* double tab
+* single tap confirmed (not followed by a double tap)
 
 ## Install
 
 `npm install --save react-native-gesture-responder@latest`
 
-
-
 ## Documentation
-
-Have a glance of how to use it:
 
 ```
 import {createResponder} from 'react-native-gesture-responder';
@@ -29,8 +31,10 @@ componentWillMount() {
     onResponderRelease: (evt, gestureState) => {},
     onResponderTerminate: (evt, gestureState) => {},
     
-    moveThreshold: 5
     onResponderSingleTapConfirmed: (evt, gestureState) => {}
+    
+    moveThreshold: 2
+    debug: false
   });
 }
 
@@ -45,13 +49,19 @@ render() {
 }
 ```
 
-The API is quite same of the [official one](https://facebook.github.io/react-native/docs/gesture-responder-system.html). Differences are:
+The API is quite same with the **[official gesture responder system](https://facebook.github.io/react-native/docs/gesture-responder-system.html)**. Differences are:
 
-1. Every lifecycle callback is called with an additional argument **gestureState**, which is also quite same as the **PanResponder** but contains more info.
-2. The config object can provide another value named **moveThreshold** (defaults to 2 if not provided), which is used to avoid too sensitive move events when simply tap the screen(mainly on Android).
-3. **onResponderSingleTapConfirmed** : as the name says.
+1. Every lifecycle callback is called with an additional argument **gestureState**, like the **[PanResponder](https://facebook.github.io/react-native/docs/panresponder.html)**.
 
-The **gesture** object has the following(a super set of PanResponder):
+2. **onResponderSingleTapConfirmed**: called after a single tap (not a double tap).
+
+3. **moveThreshold**: default is 2. Use this to avoid too sensitive move events when simply tap the screen(mainly on Android).
+
+4. **debug**: a boolean value. If true, lifecycle logs will be printed.
+
+   ​
+
+The **gestureState** object has the following(a super set of *PanResponder*):
 
 * `stateId`
 * `moveX` and `moveY`
@@ -67,24 +77,6 @@ The **gesture** object has the following(a super set of PanResponder):
 
 
 
-## Debug
-
-If the responder is not working as you expected, you can enable lifecycle logs, which prints all the onResponderXXX events. 
-
-But do **NOT** use this in production for performance consideration.
-
-```
-import {createResponder} from 'react-native-gesture-responder';
-...
-createResponder.enableDebugLog();
-```
-
-
-
-## Application
-
 Refer to *Demo* folder for a simple demonstration, as below shows:
 
 ![](Demo/demo.gif)
-
-For more complicated use cases, pls refer to [react-native-view-transformer](https://github.com/ldn0x7dc/react-native-view-transformer) and [react-native-gallery](https://github.com/ldn0x7dc/react-native-gallery).

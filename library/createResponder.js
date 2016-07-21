@@ -103,7 +103,7 @@ function cancelSingleTapConfirm(gestureState) {
 }
 
 /**
- * The config object contains  same callbacks as the default gesture responder(https://facebook.github.io/react-native/docs/gesture-responder-system.html).
+ * The config object contains same callbacks as the default gesture responder(https://facebook.github.io/react-native/docs/gesture-responder-system.html).
  * And every callback are called with an additional argument 'gestureState', like PanResponder.
  * @param config
  * @returns {{}}
@@ -116,8 +116,8 @@ function cancelSingleTapConfirm(gestureState) {
  * @param debug true to enable debug logs
  * @returns {{}}
  */
-export default function create(config, debug) {
-  if(debug) {
+export default function create(config) {
+  if(config.debug) {
     DEV = true;
   }
 
@@ -214,6 +214,7 @@ export default function create(config, debug) {
           const snapshot = Object.assign({}, gestureState);
           const timeoutId = TimerMixin.setTimeout(() => {
             if (gestureState._singleTapConfirmId === timeoutId) {
+              DEV && console.log('onResponderSingleTapConfirmed...');
               config.onResponderSingleTapConfirmed && config.onResponderSingleTapConfirmed(e, snapshot);
             }
           }, TAP_UP_TIME_THRESHOLD);

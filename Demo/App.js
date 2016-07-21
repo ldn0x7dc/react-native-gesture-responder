@@ -60,8 +60,9 @@ export default class App extends Component {
       },
       onResponderSingleTapConfirmed: (evt, gestureState) => {
         console.log('onResponderSingleTapConfirmed...' + JSON.stringify(gestureState));
-      }
-    }, true);
+      },
+      debug: true
+    });
   }
 
   render() {
