@@ -217,7 +217,7 @@ export default function create(config) {
     },
 
     onResponderStart: function (e) {
-      DEV && console.log('onResponderStart...');
+      DEV && console.log('onResponderStart...' + JSON.stringify(gestureState));
       const touchHistory = e.touchHistory;
       gestureState.numberActiveTouches = touchHistory.numberActiveTouches;
       if (config.onResponderStart) {
@@ -287,6 +287,10 @@ export default function create(config) {
  * @returns {boolean}
  */
 function effectiveMove(config, gestureState) {
+  if (gestureState.numberActiveTouches > 1) {
+    return true;
+  }
+
   let moveThreshold = MOVE_THRESHOLD;
   if (typeof config.moveThreshold === 'number') {
     moveThreshold = config.minMoveDistance;
