@@ -24,7 +24,6 @@ export default class App extends Component {
 
   componentWillMount() {
     console.log('componentWillMount...');
-    createResponder.enableDebugLog();
     this.gestureResponder = createResponder({
       onStartShouldSetResponder: (evt, gestureState) => true,
       onStartShouldSetResponderCapture: (evt, gestureState) => true,
@@ -62,7 +61,7 @@ export default class App extends Component {
       onResponderSingleTapConfirmed: (evt, gestureState) => {
         console.log('onResponderSingleTapConfirmed...' + JSON.stringify(gestureState));
       }
-    });
+    }, true);
   }
 
   render() {

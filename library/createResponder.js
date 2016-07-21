@@ -108,7 +108,19 @@ function cancelSingleTapConfirm(gestureState) {
  * @param config
  * @returns {{}}
  */
-export default function create(config) {
+
+/**
+ * The config object contains same callbacks as the default gesture responder(https://facebook.github.io/react-native/docs/gesture-responder-system.html).
+ * And every callback are called with an additional argument 'gestureState', like PanResponder.
+ * @param config
+ * @param debug true to enable debug logs
+ * @returns {{}}
+ */
+export default function create(config, debug) {
+  if(debug) {
+    DEV = true;
+  }
+
   const interactionState = {
     handle: null
   };
@@ -217,7 +229,7 @@ export default function create(config) {
     },
 
     onResponderStart: function (e) {
-      DEV && console.log('onResponderStart...' + JSON.stringify(gestureState));
+      DEV && console.log('onResponderStart...');
       const touchHistory = e.touchHistory;
       gestureState.numberActiveTouches = touchHistory.numberActiveTouches;
       if (config.onResponderStart) {
@@ -288,6 +300,7 @@ export default function create(config) {
  */
 function effectiveMove(config, gestureState) {
   if (gestureState.numberActiveTouches > 1) {
+    // on iOS simulator, a pinch gesture(move with alt pressed) will not change gestureState.dx(always 0)
     return true;
   }
 
@@ -299,8 +312,4 @@ function effectiveMove(config, gestureState) {
     return true;
   }
   return false;
-}
-
-create.enableDebugLog = () => {
-  DEV = true;
 }
