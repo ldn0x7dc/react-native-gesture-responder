@@ -307,7 +307,7 @@ function effectiveMove(config, gestureState) {
 
   let moveThreshold = MOVE_THRESHOLD;
   if (typeof config.moveThreshold === 'number') {
-    moveThreshold = config.minMoveDistance;
+    moveThreshold = config.moveThreshold;
   }
   if (Math.abs(gestureState.dx) >= moveThreshold || Math.abs(gestureState.dy) >= moveThreshold) {
     return true;
